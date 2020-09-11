@@ -1,0 +1,61 @@
+digraph {
+
+	rank1 [style = invisible];
+	rank2 [style = invisible];
+	rank3 [style = invisible];
+	rank1 -> rank2 -> rank3 [color = white, style = invis];
+	rankdir = LR
+	{
+		rank = same;
+		N1 [label="Buffer Behind"];
+		N2 [label="Buffer Ahead"];
+		rankdir = TB;
+		rank1 -> N1 -> N2 [ style=invis ];
+	}
+	{
+		rank = same;
+		N3 [label="Reading"];
+		N4 [label="IO Error"];
+		N5 [label="Writing"];
+		rankdir = TB;
+		rank2 -> N3 -> N4 -> N5 [ style=invis ];
+	}
+	{
+		rank = same;
+		N6 [label="Generic Error"];
+		N7 [label="Ready"];
+		rankdir = TB;
+		rank3 -> N6 -> N7 [ style=invis ];
+	}
+	
+	overlap = false;
+	splines = true;
+	
+	//N1
+	N1 -> N3 [arrowhead="vee", color = "blue", fontcolor = "blue", label="Read"]		//Reading from file. (Initializing)
+	N1 -> N5 [arrowhead="vee", color = "purple", fontcolor = "purple", label="Force Write"]		//Trying to overwrite 
+	N1 -> N6 [arrowhead="vee", color = "red", fontcolor = "red", label="Modify, Write"]		//corrupting Buffer state
+	
+	//N2
+	N2 -> N3 [arrowhead="vee", color = "purple", fontcolor = "purple", label="Force Read"]		//Force Resetting buffer.
+	N2 -> N5 [arrowhead="vee", color = "blue", fontcolor = "blue", label="Write"]		//Writing changes to file.
+	N2 -> N6 [arrowhead="vee", color = "red", fontcolor = "red", label="Read, Modify"]		//corrupting Buffer State
+	
+	//N3
+	N3 -> N4 [arrowhead="vee", color = "red", fontcolor = "red", label="Modify, Write"]		//Trying to interrupt reading. Will corrupt buffer.
+	N3 -> N7 [arrowhead="vee", color = "blue", fontcolor = "blue", label="~", tailport = "ne", headport = "nw"]			//Completing Read.
+	N3 -> N3 [arrowhead="vee", color = "blue", fontcolor = "blue", label="Read", headport = "e", tailport = "e"]		//Reseting Read action.
+	
+	//N5
+	N5 -> N4 [arrowhead="vee", color = "red", fontcolor = "red", label="Modify, Read"]		//Trying to interrupt writing. Will corrupt buffer.
+	N5 -> N7 [arrowhead="vee", color = "blue", fontcolor = "blue", label="~"]			//Completing Write.
+	N5 -> N5 [arrowhead="vee", color = "blue", fontcolor = "blue", label="Write", headport = "e", tailport = "e"]		//Reseting Write action.
+	
+	//N6
+	N6 -> N1 [arrowhead="vee", color = "purple", fontcolor = "purple", label="Force Read", headport = "ne", tailport = "nw"]		//Force Resetting buffer.
+	
+	//N7
+	N7 -> N2 [arrowhead="vee", color = "blue", fontcolor = "blue", label="Modify"]		//Modifying data.
+	N7 -> N6 [arrowhead="vee", color = "red", fontcolor = "red", label="~"]					//Unexpected Behavior
+	N7 -> N7 [arrowhead="vee", color = "blue", fontcolor = "blue", label="Read, Write", headport = "e", tailport = "e"]	//Trying to update data thats up to date.
+}

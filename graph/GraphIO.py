@@ -26,6 +26,8 @@ def writeGraphToFile(graph, name):
 		for node in graph.getNodes():
 			if hasattr(node, "getName"):
 				writeNode(f, str(node.getID()), alias = str(node.getName()))
+			elif isinstance(node.getValue(), str):
+				writeNode(f, str(node.getID()), alias = node.getValue())
 			else:
 				writeNode(f, str(node.getID()))
 			for child in node.getChildren():

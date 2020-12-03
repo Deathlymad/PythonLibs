@@ -99,6 +99,19 @@ class Graph(AbstractGraph):
 	def getLeaves(self):
 		return [n for n in self.nodes if len(n.getChildren()) == 0]
 	
+	def contains(self, id):
+		if (len(self.nodes) == 0):
+			return False
+		if ((not AbstractGraph.isID(id)) or (id > self.nodes[len(self.nodes) - 1].getID())):
+			return False
+		
+		node = self.__findNodeRec(id, 0, len(self.nodes))
+		
+		
+		if (node.getID() != id):
+			return False
+		return True
+	
 	def findNode(self, id):
 		if (len(self.nodes) == 0):
 			raise ValueError("Empty node list.");

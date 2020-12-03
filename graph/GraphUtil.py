@@ -22,14 +22,16 @@ def findLoop(graph, startNode):
 	return findLoopRec(graph, startNode, set(), [])
 
 def findLoopRec(graph, startNode, visitedSet = set(), treeStack = []):
-	
-	visitedSet = visitedSet.union([startNode]);
-	
+	visitedSet = visitedSet.union({startNode})
 	for node in startNode.getParents():
+		if not graph.contains(node):
+			continue
 		if node in treeStack:
 			return treeStack[treeStack.index(node):]
-		newStack = treeStack + [node]
-		res = findLoopRec(graph, graph.findNode(node), visitedSet, newStack)
+		newStack = treeStack.copy()
+		newStack.append(node)
+		nodeObj = graph.findNode(node)
+		res = findLoopRec(graph, nodeObj, visitedSet, newStack)
 		if res != None:
 			return res
 	

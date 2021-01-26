@@ -19,19 +19,19 @@ def depthFirstSearchRec(graph, tree, startNode, visitedSet = set(), lastNodeVal 
 		depthFirstSearch(graph, tree, graph.findNode(node), visitedSet, node)
 
 def findLoop(graph, startNode):
-	return findLoopRec(graph, startNode, set(), [])
+	return findLoopRec(graph, startNode, [])
 
-def findLoopRec(graph, startNode, visitedSet = set(), treeStack = []):
-	visitedSet = visitedSet.union({startNode})
+def findLoopRec(graph, startNode, treeStack = []):
+	treeStack.append(startNode)
 	for node in startNode.getParents():
 		if not graph.contains(node):
 			continue
-		if node in treeStack:
-			return treeStack[treeStack.index(node):]
+		idList = [obj.getID() for obj in treeStack]
+		if node in idList:
+			return [obj.getID() for obj in treeStack[idList.index(node):]]
 		newStack = treeStack.copy()
-		newStack.append(node)
 		nodeObj = graph.findNode(node)
-		res = findLoopRec(graph, nodeObj, visitedSet, newStack)
+		res = findLoopRec(graph, nodeObj, newStack)
 		if res != None:
 			return res
 	
